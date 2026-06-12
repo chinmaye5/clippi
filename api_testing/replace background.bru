@@ -1,0 +1,16 @@
+meta {
+  name: replace background
+  type: http
+  seq: 13
+}
+
+post {
+  url: http://localhost:5000/api/image/replace-background
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  image_file: @file(C:\telegram\photos\photo_2022-12-02_19-01-08.jpg)
+  prompt: add desert in background
+}

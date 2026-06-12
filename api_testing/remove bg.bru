@@ -1,0 +1,15 @@
+meta {
+  name: remove bg
+  type: http
+  seq: 9
+}
+
+post {
+  url: http://localhost:5000/api/image/remove-bg
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  image_file: @file(C:\telegram\photos\photo_2022-12-02_19-01-08.jpg)
+}

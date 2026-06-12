@@ -1,0 +1,15 @@
+meta {
+  name: remove text
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://localhost:5000/api/image/remove-text
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  image_file: @file(C:\Users\chinm\OneDrive\Desktop\billboard.png)
+}

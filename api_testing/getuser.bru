@@ -1,0 +1,11 @@
+meta {
+  name: getuser
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:5000/api/auth/me
+  body: none
+  auth: inherit
+}

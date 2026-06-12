@@ -1,0 +1,17 @@
+meta {
+  name: uncrop
+  type: http
+  seq: 14
+}
+
+post {
+  url: http://localhost:5000/api/image/uncrop
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  image_file: @file(C:\Users\chinm\OneDrive\Desktop\Screenshot 2026-05-27 143358.png)
+  height: 2000
+  width: 2000
+}

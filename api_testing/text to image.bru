@@ -1,0 +1,17 @@
+meta {
+  name: text to image
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://localhost:5000/api/image/text-to-image
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "prompt":"xmen+avengers finghting dr doom in a standoff full clear hd picture"
+  }
+}

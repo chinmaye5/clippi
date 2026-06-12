@@ -1,0 +1,15 @@
+meta {
+  name: upscale
+  type: http
+  seq: 12
+}
+
+post {
+  url: http://localhost:5000/api/image/upscale-image
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  image_file: @file(C:\Users\chinm\OneDrive\Desktop\upsca.png)
+}
