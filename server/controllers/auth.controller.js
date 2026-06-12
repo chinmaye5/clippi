@@ -52,10 +52,10 @@ export const register = async (req, res) => {
 
         // Step 6: Send the token to the browser inside a secure HTTP-Only cookie
         res.cookie("token", token, {
-            httpOnly: true, // Prevents JavaScript from reading the cookie (protects from XSS attacks)
-            secure: process.env.NODE_ENV === "production", // Cookie only sent over secure HTTPS in production
-            sameSite: "strict", // Protects against Cross-Site Request Forgery (CSRF)
-            maxAge: 7 * 24 * 60 * 60 * 1000 // Cookie duration matching token duration (7 days in milliseconds)
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days, for example
         });
 
         // Step 7: Send a success response back to the client
@@ -125,9 +125,9 @@ export const login = async (req, res) => {
         // Step 5: Send the token in a secure cookie
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            secure: true,
+            sameSite: "none",
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
         // Step 6: Return user details and token in response
@@ -231,7 +231,7 @@ export const forgotPassword = async (req, res) => {
         // Date.now() is current time in milliseconds. 10 minutes = 10 * 60 * 1000 milliseconds.
         user.resetOtp = otp;
         user.resetOtpExpire = new Date(Date.now() + 10 * 60 * 1000);
-        
+
         // Save the updated user document to the database
         await user.save();
 
