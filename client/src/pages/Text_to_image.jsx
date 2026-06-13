@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api/api";
 
@@ -7,6 +7,7 @@ export default function TextToImage() {
     const [imageUrl, setImageUrl] = useState("");
     const [generating, setGenerating] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+    const resultRef = useRef(null);
     const { user, setUser } = useContext(AuthContext);
 
     // Create image from prompt
@@ -28,6 +29,10 @@ export default function TextToImage() {
                 if (response.data.credits !== undefined && user) {
                     setUser({ ...user, credits: response.data.credits });
                 }
+                // Scroll to result on mobile
+                setTimeout(() => {
+                    resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
             } else {
                 setErrorMsg(response.data.message || "Failed to generate image.");
             }
@@ -43,9 +48,9 @@ export default function TextToImage() {
     };
 
     return (
-        <div className="flex flex-col md:flex-row w-full h-full font-mono bg-zinc-50 overflow-hidden">
+        <div className="flex flex-col md:flex-row w-full md:h-full font-mono bg-zinc-50 md:overflow-hidden">
             {/* Left Column: Prompt Box and Generation Controls */}
-            <div className="w-full md:w-80 lg:w-96 border-b-4 md:border-b-0 md:border-r-4 border-black bg-white p-6 flex flex-col justify-between h-full overflow-y-auto select-none">
+            <div className="w-full md:w-80 lg:w-96 border-b-4 md:border-b-0 md:border-r-4 border-black bg-white p-6 flex flex-col justify-between md:h-full md:overflow-y-auto select-none">
                 <div className="space-y-6">
                     <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight border-b-4 border-black pb-2">
                         Text-to-Image
@@ -85,7 +90,7 @@ export default function TextToImage() {
             </div>
 
             {/* Right Column: Image Preview Viewport */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 h-full bg-zinc-50 overflow-hidden relative">
+            <div ref={resultRef} className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 min-h-[50vh] md:h-full bg-zinc-50 md:overflow-hidden relative">
                 {imageUrl ? (
                     <div className="border-4 border-black bg-white p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-full max-h-full flex flex-col items-center justify-center">
                         <p className="text-xs font-black uppercase tracking-wider mb-2.5 text-zinc-500 self-start">

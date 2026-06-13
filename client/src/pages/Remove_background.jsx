@@ -11,6 +11,7 @@ export default function RemoveBackground() {
     const [errorMsg, setErrorMsg] = useState("");
     const { user, setUser } = useContext(AuthContext);
     const fileInputRef = useRef(null);
+    const resultRef = useRef(null);
 
     // Checkerboard style to indicate transparency behind output images
     const checkeredStyle = {
@@ -83,6 +84,10 @@ export default function RemoveBackground() {
                 if (response.data.credits !== undefined && user) {
                     setUser({ ...user, credits: response.data.credits });
                 }
+                // Auto-scroll to result on mobile
+                setTimeout(() => {
+                    resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
             } else {
                 setErrorMsg(response.data.message || "Failed to remove background.");
             }
@@ -98,9 +103,9 @@ export default function RemoveBackground() {
     };
 
     return (
-        <div className="flex flex-col md:flex-row w-full h-full font-mono bg-zinc-50 overflow-hidden">
+        <div className="flex flex-col md:flex-row w-full md:h-full font-mono bg-zinc-50 md:overflow-hidden">
             {/* Left Column: File Upload and Processing Controls */}
-            <div className="w-full md:w-80 lg:w-96 border-b-4 md:border-b-0 md:border-r-4 border-black bg-white p-6 flex flex-col justify-between h-full overflow-y-auto select-none">
+            <div className="w-full md:w-80 lg:w-96 border-b-4 md:border-b-0 md:border-r-4 border-black bg-white p-6 flex flex-col justify-between md:h-full md:overflow-y-auto select-none">
                 <div className="space-y-6">
                     <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight border-b-4 border-black pb-2">
                         Remove BG
@@ -178,7 +183,7 @@ export default function RemoveBackground() {
             </div>
 
             {/* Right Column: Dynamic Output Workspace */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 h-full bg-zinc-50 overflow-hidden relative">
+            <div ref={resultRef} className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 min-h-[50vh] md:h-full bg-zinc-50 md:overflow-hidden relative">
                 {imageUrl ? (
                     <div className="border-4 border-black bg-white p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-full max-h-full flex flex-col items-center justify-center">
                         <p className="text-xs font-black uppercase tracking-wider mb-2.5 text-zinc-500 self-start">

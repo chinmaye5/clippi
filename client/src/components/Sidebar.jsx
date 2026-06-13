@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Wand2, ImageIcon, History, LayoutDashboard, Trash2, Plus, ArrowUp10, Eraser } from 'lucide-react';
 
@@ -23,6 +24,23 @@ const linkClass = (isActive) =>
         : 'bg-white text-black hover:bg-zinc-100'}`;
 
 export default function Sidebar() {
+    const location = useLocation();
+
+    useEffect(() => {
+        // Delay slightly to ensure render and route transition completes
+        const timer = setTimeout(() => {
+            const activeEl = document.querySelector('.active-mobile-link');
+            if (activeEl) {
+                activeEl.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }, 100);
+        return () => clearTimeout(timer);
+    }, [location.pathname]);
+
     return (
         <>
             {/* ── Desktop Left Sidebar (hidden on mobile) ── */}
@@ -45,18 +63,18 @@ export default function Sidebar() {
             </aside>
 
             {/* ── Mobile Bottom Tab Bar (hidden on sm and above) ── */}
-            <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t-4 border-black flex h-16 font-mono">
+            <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t-4 border-black flex h-16 font-mono overflow-x-auto no-scrollbar scroll-smooth">
                 {NAV_LINKS.map(({ to, label, icon: Icon }) => (
                     <NavLink
                         key={to}
                         to={to}
                         className={({ isActive }) =>
-                            `flex-1 flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-tight transition-all border-r-2 last:border-r-0 border-black
-                             ${isActive ? 'bg-black text-white' : 'bg-white text-zinc-600 hover:bg-zinc-100'}`
+                            `flex-shrink-0 w-[95px] flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-tight transition-all border-r-2 last:border-r-0 border-black px-1 text-center whitespace-normal
+                             ${isActive ? 'bg-black text-white active-mobile-link' : 'bg-white text-zinc-600 hover:bg-zinc-100'}`
                         }
                     >
                         <Icon size={18} strokeWidth={2.5} />
-                        <span>{label}</span>
+                        <span className="leading-tight">{label}</span>
                     </NavLink>
                 ))}
             </nav>
