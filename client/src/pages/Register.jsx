@@ -20,6 +20,9 @@ export default function Register() {
 
         try {
             const response = await api.post('/auth/register', { name, email, password });
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+            }
             setUser(response.data.user);
             navigate('/dashboard');
         } catch (err) {

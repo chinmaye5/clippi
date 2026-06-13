@@ -19,6 +19,7 @@ export function AuthProvider({ children }) {
             }
         } catch (err) {
             setUser(null);
+            localStorage.removeItem('token');
         } finally {
             setLoading(false);
         }
@@ -32,6 +33,7 @@ export function AuthProvider({ children }) {
         try {
             await api.post('/auth/logout');
             setUser(null);
+            localStorage.removeItem('token');
             alert('Logged out successfully!');
         } catch (err) {
             console.error('Logout failed:', err);
