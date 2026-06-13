@@ -201,11 +201,11 @@ export const getUser = async (req, res) => {
 /**
  * 5. FORGOT PASSWORD (Send a 6-digit OTP code to user's email)
  */
+
 export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
 
-        // Step 1: Validate input (check if email was sent)
         if (!email) {
             return res.status(400).json({
                 success: false,
@@ -213,61 +213,59 @@ export const forgotPassword = async (req, res) => {
             });
         }
 
-        // Step 2: Find the user by their email in the database
-        const user = await userModel.findOne({ email });
-        if (!user) {
+        // 1. Generate the random 6-digit OTP string
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // 2. Atomically update the OTP fields in the DB (Bypasses .save() validation issues)
+        const updatedUser = await userModel.findOneAndUpdate(
+            { email },
+            {
+                $set: {
+                    resetOtp: otp,
+                    resetOtpExpire: new Date(Date.now() + 10 * 60 * 1000)
+                }
+            },
+            { new: true } // Returns the updated document with user.name populated
+        );
+
+        if (!updatedUser) {
             return res.status(404).json({
                 success: false,
                 message: "No account found with this email address."
             });
         }
 
-        // Step 3: Generate a random 6-digit number for the OTP (One-Time Password)
-        // Math.random() generates a decimal, which we scale and round to a 6-digit integer.
-        // e.g. 100000 + (0.123456 * 900000) = 211110
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Step 4: Set the OTP and an expiration time (10 minutes from now)
-        // Date.now() is current time in milliseconds. 10 minutes = 10 * 60 * 1000 milliseconds.
-        user.resetOtp = otp;
-        user.resetOtpExpire = new Date(Date.now() + 10 * 60 * 1000);
-
-        // Save the updated user document to the database
-        await user.save();
-
-        // Step 5: Send the email containing the OTP
+        // 3. Define the email layout with updatedUser details
         const emailOptions = {
-            to: user.email,
+            to: updatedUser.email,
             subject: "Your Clippi Password Reset OTP",
-            text: `Hello ${user.name},\n\nYou requested a password reset. Use this 6-digit OTP to reset your password: ${otp}.\n\nThis OTP is valid for 10 minutes.\n\nIf you did not request this, please ignore this email.`,
+            text: `Hello ${updatedUser.name},\n\nYou requested a password reset. Use this 6-digit OTP to reset your password: ${otp}.`,
             html: `
                 <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 5px; max-width: 600px;">
                     <h2 style="color: #4A90E2;">Password Reset Request</h2>
-                    <p>Hello <strong>${user.name}</strong>,</p>
+                    <p>Hello <strong>${updatedUser.name}</strong>,</p>
                     <p>You requested a password reset. Please use the following 6-digit One-Time Password (OTP) to reset your password:</p>
                     <div style="background-color: #f5f5f5; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-align: center; padding: 15px; margin: 20px 0; color: #333; border-radius: 4px;">
                         ${otp}
                     </div>
-                    <p style="color: #666; font-size: 14px;">This OTP is valid for <strong>10 minutes</strong>. After 10 minutes, you will need to request a new one.</p>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-                    <p style="color: #999; font-size: 12px;">If you did not request this reset, please ignore this email or contact support if you have concerns.</p>
+                    <p style="color: #666; font-size: 14px;">This OTP is valid for <strong>10 minutes</strong>.</p>
                 </div>
             `
         };
 
+        // 4. Fire off the email trigger
         await sendEmail(emailOptions);
 
-        // Step 6: Return success response
         return res.status(200).json({
             success: true,
             message: "A 6-digit password reset OTP has been sent to your email."
         });
 
     } catch (error) {
-        console.error("Forgot password error:", error.message);
+        console.error("Forgot password controller crash:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Failed to send password reset email. Please try again later."
+            message: `Failed to send password reset email: ${error.message}`
         });
     }
 };
