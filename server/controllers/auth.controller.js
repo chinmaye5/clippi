@@ -225,7 +225,7 @@ export const forgotPassword = async (req, res) => {
                     resetOtpExpire: new Date(Date.now() + 10 * 60 * 1000)
                 }
             },
-            { new: true } // Returns the updated document with user.name populated
+            { returnDocument: 'after' } // Returns the updated document with user.name populated
         );
 
         if (!updatedUser) {
